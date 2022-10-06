@@ -1,7 +1,8 @@
 # PySurf96AA
 ![Python23](https://img.shields.io/badge/python-2.7%20%7C%203.x-brightgreen.svg)
 
-**This is based on PySurf96 (https://github.com/miili/pysurf96) and some of the Fortran routines are taken from Chuanming-Liu (https://github.com/Chuanming-Liu/DAzimSurfTomo/)**
+**This is based on PySurf96 (https://github.com/miili/pysurf96) and some of the Fortran routines are taken from Chuanming-Liu (https://github.com/Chuanming-Liu/DAzimSurfTomo/).**
+
 Next to the normal functionality of surf96, it includes the possibility to calculate azimuthally anisotropic Rayleigh phase dispersion. The current version may still contain errors, please check carefully before using the code.
 
 _Modelling Surface Wave Dispersion Curves_
@@ -31,12 +32,15 @@ pip install git+https://github.com/ekaestle/pysurf96aa
 ## Input parameters
 
 ```python
-c_iso,aa_amp,aa_dir = surf96aa(thickness, vp, vs, rho, anisoamp, anisodir, periods, nrefine=1,
-                               wave='rayleigh', mode=1,velocity='phase',flat_earth=False,return_sensitivities=False)
-c_iso,aa_amp,aa_dir,Lsen,dcda,dcdl = surf96aa(thickness, vp, vs, rho, anisoamp, anisodir, periods, nrefine=1,
-                                              wave='rayleigh', mode=1,velocity='phase',flat_earth=False,return_sensitivities=True)
+c_iso,aa_amp,aa_dir = surf96aa(thickness, vp, vs, rho, anisoamp, anisodir, 
+    periods, nrefine=1, wave='rayleigh', mode=1, velocity='phase',
+    flat_earth=False, return_sensitivities=False)
+c_iso,aa_amp,aa_dir,Lsen,dcda,dcdl = surf96aa(thickness, vp, vs, rho, anisoamp, anisodir,
+    periods, nrefine=1, wave='rayleigh', mode=1, velocity='phase',
+    flat_earth=False, return_sensitivities=True)
 ```
-
+Parameter explanations
+```
 thickness: thickness of each layer in km (last layer is halfspace, thickness is ignored)
 vp: Vp velocity of each layer in km/s, same length as thickness
 vs: Vs velocity of each layer in km/s
@@ -50,6 +54,7 @@ mode: only fundamental mode (=1) is
 velocity: only 'phase' is currently supported for azimuthal anisotropy calculations
 flat_earth: apply flat earth transform
 return_sensitivity: if _True_, the partial derivatives dC/dA and dC/dL as well as the total sensitivity as in the first term of eq. (13) of Liu et al. (2019) is returned.
+```
 
 ## Example
 
@@ -101,6 +106,7 @@ There is also a _testrun.py_ script in the tutorial folder that can be used to t
 ## Citations and Acknowledgments
 
 > Herrmann, R. B. (2013) Computer programs in seismology: An evolving tool for instruction and research, Seism. Res. Lettr. 84, 1081-1088, doi:10.1785/0220110096
+
 > Liu, C., Yao, H., Yang, H.Y., Shen, W., Fang, H., Hu, S. and Qiao, L., 2019. Direct inversion for three‐dimensional shear wave speed azimuthal anisotropy based on surface wave ray tracing: Methodology and application to Yunnan, southwest China. Journal of Geophysical Research: Solid Earth, 124(11), pp.11394-11413.
 
 Thanks to Hongjian Fang for creating the Fortran subroutine (https://github.com/caiweicaiwei/SurfTomo)
