@@ -7,10 +7,10 @@ except ImportError:
 
 
 setup(
-    name='pysurf96',
+    name='pysurf96aa',
     version='0.1',
     description='Surface Wave Dispersion Python Wrapper for surf96',
-    author='MDM',
+    author='Emanuel',
     classifiers=[
         "Programming Language :: Python :: 2",
         "Programming Language :: Python :: 3",
@@ -20,17 +20,17 @@ setup(
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
     package_dir={
-        'pysurf96': 'src'
+        'pysurf96aa': 'src'
     },
     packages=[
-        'pysurf96',
+        'pysurf96aa',
     ],
     ext_modules=[
         Extension(
-            name='pysurf96.surfdisp96_ext',
-            sources=['src/surfdisp96.f'],
+            name='pysurf96aa.surfdisp96aa_ext',
+            sources=['src/surf96aa.f'],
             extra_f77_compile_args='-O3 -ffixed-line-length-none -fbounds-check -m64'.split(), # noqa
-            f2py_options=['only:', 'surfdisp96', ':'],
+            f2py_options=['only:','depthkernel','surfdisp96',':'],
             language='f77')
         ]
 )
