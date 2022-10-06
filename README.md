@@ -3,7 +3,7 @@
 
 **This is based on PySurf96 (https://github.com/miili/pysurf96) and some of the Fortran routines are taken from Chuanming Liu (https://github.com/Chuanming-Liu/DAzimSurfTomo/).**
 
-Next to the normal functionality of surf96, it includes the possibility to calculate azimuthally anisotropic Rayleigh phase dispersion. The current version may still contain errors, please check carefully before using the code.
+Next to the normal functionality of surf96, it includes the possibility to calculate azimuthally anisotropic Rayleigh phase dispersion. The current version may still contain errors, please check carefully before using the code. The azimuthal anisotropy calculations are based on the work of Liu et al. (2019), especially their eqs. 10-13.
 
 _Modelling Surface Wave Dispersion Curves_
 
