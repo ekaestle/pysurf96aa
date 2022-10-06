@@ -1,7 +1,7 @@
 # PySurf96AA
 ![Python23](https://img.shields.io/badge/python-2.7%20%7C%203.x-brightgreen.svg)
 
-**This is based on PySurf96 (https://github.com/miili/pysurf96) and some of the Fortran routines are taken from Chuanming-Liu (https://github.com/Chuanming-Liu/DAzimSurfTomo/).**
+**This is based on PySurf96 (https://github.com/miili/pysurf96) and some of the Fortran routines are taken from Chuanming Liu (https://github.com/Chuanming-Liu/DAzimSurfTomo/).**
 
 Next to the normal functionality of surf96, it includes the possibility to calculate azimuthally anisotropic Rayleigh phase dispersion. The current version may still contain errors, please check carefully before using the code.
 
@@ -39,26 +39,39 @@ c_iso,aa_amp,aa_dir,Lsen,dcda,dcdl = surf96aa(thickness, vp, vs, rho, anisoamp, 
     periods, nrefine=1, wave='rayleigh', mode=1, velocity='phase',
     flat_earth=False, return_sensitivities=True)
 ```
-Parameter explanations
-```
+**Parameter explanations**
+
 thickness: thickness of each layer in km (last layer is halfspace, thickness is ignored)
+
 vp: Vp velocity of each layer in km/s, same length as thickness
+
 vs: Vs velocity of each layer in km/s
+
 rho: density of each layer in g/cm³
+
 anisoamp: relative anisotropic amplitude in each layer (0.05 = 5% anisotropy)
+
 anisodir: fast axis direction in radians in each layer
+
 periods: periods at which to return the phase dispersion
+
 nrefine: split layers in _nrefine_ sublayers. Has no effect on the result, but gives smoother sensitivity kernels
-wave: only 'rayleigh' 
-mode: only fundamental mode (=1) is 
+
+wave: only 'rayleigh' is currently supported for azimuthal anisotropy calculations
+
+mode: only fundamental mode (=1) is currently supported for azimuthal anisotropy calculations
+
 velocity: only 'phase' is currently supported for azimuthal anisotropy calculations
+
 flat_earth: apply flat earth transform
+
 return_sensitivity: if _True_, the partial derivatives dC/dA and dC/dL as well as the total sensitivity as in the first term of eq. (13) of Liu et al. (2019) is returned.
-```
+
 
 ## Example
 
 **Isotropic**
+
 This is the same as PySurf96
 ```python
 import numpy as np
