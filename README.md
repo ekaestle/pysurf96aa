@@ -17,7 +17,7 @@ More useful software for seismology at https://pyrocko.org.
 
 This package is for Python 2 and Python 3.
 
-Prerequisits are numpy and a Fortran77 compiler, like GNU GCC.
+Prerequisites are numpy and a Fortran77 compiler, like GNU GCC.
 
 ```
 sudo python setup.py install
@@ -65,7 +65,7 @@ velocity: only 'phase' is currently supported for azimuthal anisotropy calculati
 
 flat_earth: apply flat earth transform
 
-return_sensitivity: if _True_, the partial derivatives dC/dA and dC/dL as well as the total sensitivity as in the first term of eq. (13) of Liu et al. (2019) is returned.
+return_sensitivity: if _True_, the partial derivatives dC/dA and dC/dL as well as the total sensitivity (Lsen) as in the first term of eq. (13) of Liu et al. (2019) is returned.
 
 
 ## Example
