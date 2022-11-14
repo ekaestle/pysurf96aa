@@ -88,7 +88,7 @@ cf2py intent(out) err, Lsen_Gsc, dcR_dA, dcR_dL
                 k=k+1
                 dcR_dA(i,j) = (0.5/(rhor(k)*vpr(k))*dcdah(i, k) - TF_in(k)/((TA_in(k)-2.0*TL_in(k))**2)*dcdn(i,k))!*thkr(j)
                 dcR_dL(i,j) = (0.5/(rhor(k)*vsr(k))*dcdbv(i, k) + 2.0*TF_in(k)/((TA_in(k)-2.0*TL_in(k))**2)*dcdn(i,k))!*thkr(j)
-                Lsen_Gsc(i,j)=Lsen_Gsc(i,j)+dcR_dA(i,j)*TA_in(k)+dcR_dL(i,j)*TL_in(k)
+                Lsen_Gsc(i,j)=dcR_dA(i,j)*TA_in(k)+dcR_dL(i,j)*TL_in(k)
             enddo
         enddo
 

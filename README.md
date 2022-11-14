@@ -103,7 +103,7 @@ rho = vp * .32 + .77
 # azimuthal anisotropy amplitude (relative to vs)
 aniso_amp = np.array([0.03,0.05,0.02,0.02])
 # azimuthal anisotropy fast axis direction (in radians)
-aniso_dir = np.array([30,-30,30.,0.])
+aniso_dir = np.array([30,-30,30.,0.])/180.*np.pi
 
 # Periods we are interested in
 periods = np.linspace(1., 20., 20)
