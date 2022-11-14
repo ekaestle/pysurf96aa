@@ -1,7 +1,7 @@
 # PySurf96AA
 ![Python23](https://img.shields.io/badge/python-2.7%20%7C%203.x-brightgreen.svg)
 
-**This is based on PySurf96 (https://github.com/miili/pysurf96) and some of the Fortran routines are taken from Chuanming Liu (https://github.com/Chuanming-Liu/DAzimSurfTomo/).**
+**This is based on PySurf96 (https://github.com/miili/pysurf96) and some of the Fortran routines are taken from Chuanming Liu (https://github.com/Chuanming-Liu/DAzimSurfTomo/). This readme is the same as pysurf96 with some additonal comments.**
 
 Next to the normal functionality of surf96, it includes the possibility to calculate azimuthally anisotropic Rayleigh phase dispersion. The current version may still contain errors, please check carefully before using the code. The azimuthal anisotropy calculations are based on the work of Liu et al. (2019), especially their eqs. 10-13.
 
