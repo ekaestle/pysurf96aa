@@ -11,7 +11,7 @@
         integer nlayer,iflsph,iwave,mode,igr,nperiods,err
         
         integer NL
-        parameter(NL=100)
+        parameter(NL=200)
         integer NP
         parameter (NP=60)
         integer nrefine,nlayerr

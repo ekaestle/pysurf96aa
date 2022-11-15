@@ -1,9 +1,9 @@
 import numpy as num
-from pysurf96 import surfdisp96_ext
-from pysurf96 import surf96
+from pysurf96aa import surfdisp96aa_ext
+from pysurf96aa import surf96,surf96aa
 
 
-def test_surfdisp96_ext():
+def test_surfdisp96aa_ext():
     '''
     c----- parameters
     c     thkm, vpm, vsm, rhom: model for dispersion calculation
@@ -17,10 +17,10 @@ def test_surfdisp96_ext():
     c     cg - output phase or group velocities (vector,cg(NP))
     c----- 
     '''
-    th = num.zeros(100)
+    th = num.zeros(200)
     th[:4] = num.array([5., 23., 8., 0])
 
-    vs = num.zeros(100)
+    vs = num.zeros(200)
     vs[:4] = num.array([2.7, 3.6, 3.8, 4.4])
 
     vp = vs * 1.73
@@ -37,7 +37,7 @@ def test_surfdisp96_ext():
     t[:21] = num.linspace(1, 40, 21)
     result = num.zeros(60)
 
-    surfdisp96_ext.surfdisp96(
+    surfdisp96aa_ext.surfdisp96(
         th, vp, vs, rho, nlayer, iflsph, iwave,
         mode, igr, kmax, t, result)
 
@@ -57,6 +57,6 @@ def test_wrapper():
 
 
 if __name__ == '__main__':
-    t, res = test_surfdisp96_ext()
+    t, res = test_surfdisp96aa_ext()
     print(t, res)
     test_wrapper()

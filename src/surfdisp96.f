@@ -57,7 +57,7 @@ c-----
      
         parameter(LER=0,LIN=5,LOT=6)
         integer NL, NL2, NLAY
-        parameter(NL=100,NLAY=100,NL2=NL+NL)
+        parameter(NL=200,NLAY=200,NL2=NL+NL)
         integer NP
         parameter (NP=60)
 

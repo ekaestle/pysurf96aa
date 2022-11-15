@@ -11,7 +11,7 @@ import numpy as num
 from .surfdisp96aa_ext import surfdisp96, depthkernel  # noqa
 
 
-MAXLAYER = 100
+MAXLAYER = 200
 MAXPERIODS = 60
 
 
