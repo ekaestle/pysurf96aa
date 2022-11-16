@@ -272,5 +272,12 @@ def layermod2depthmod(thickness,parameters):
 
     return num.vstack((depth,layerparams))
 
+def depthmod2layermod(depth,parameters):
+
+    if type(parameters)!=type(()):
+        raise Exception("parameters has to be a tuple (vp,vs,...)")
+
+    thickness = num.diff(depth)
+
 
 __all__ = ['surf96', 'surf96aa', 'layermod2depthmod','Surf96Error']
