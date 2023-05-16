@@ -86,7 +86,7 @@ def surf96aa(thickness, vp, vs, rho, anisoamp, anisodir, periods, nrefine=1,
         'thickness, vp/vs velocities and rho have different sizes.'
     assert thickness.ndim == vp.ndim == vs.ndim == rho.ndim == 1, \
         'thickness, vp/vs velocities or rho have more than one dimension'
-    assert thickness.size <= MAXLAYER, 'maximum number of layers is 100'
+    assert thickness.size <= MAXLAYER, 'maximum number of layers is 200'
     assert nrefine*(thickness.size-1)+1 <= MAXLAYER, 'the number of layers times nrefine must not exceed 100'
     assert periods.size <= MAXPERIODS, 'maximum number of periods is 60'
     assert wave in ['love', 'rayleigh'], 'wave has to be love or rayleigh'
@@ -137,8 +137,9 @@ def surf96aa(thickness, vp, vs, rho, anisoamp, anisodir, periods, nrefine=1,
     # A = rho*vp**2
     # L = rho*vs**2
     # G = rho*vs*dVs (from Bodin et al. 2016, A5)
+    # B = rho*vp*dVp
     if version==1: # as described in Liu et al. 2019 (eq. 11-13)
-        # assumption: B/A = G/L
+        # assumption: B/A = G/L (which means dVp/Vp = dVs/Vs and anisotropy points in the same direction)
         # C1,2 = integral ( dcR_dA * B + dcR_dL * G ) = integral ( (G/L) * ( dcR_dA * A + dcR_dL * L ) ) = integral( G/L * Lsen_Gc )
         # no need to calculate Lsen_Gsc since it is calculated in the Fortran script directly
         #Lsen_Gsc = (dcR_dA*num.reshape(num.tile(num.repeat(rho[:-1]*vp[:-1]**2,nrefine),nperiods),(nperiods,nlayers_refined)) +
@@ -149,10 +150,10 @@ def surf96aa(thickness, vp, vs, rho, anisoamp, anisodir, periods, nrefine=1,
         # C2 = integral( G/L * Lsen_Gs ) = integral( G/L * Lsen_Gsc * sine(2*anisodir) )
         C2 = num.sum(Lsen_Gsc*num.reshape(num.tile(num.repeat(2*anisoamp[:-1]*num.sin(2*anisodir[:-1]),nrefine),nperiods),(nperiods,nlayers_refined)),axis=1)
     else: # as described in Bodin et al. 2016 (appendix)
-        # assumption: Vp anisotropy points in the same direction and has an amplitude 1.5 times stronger than Vs (Obreski et al. 2010, Bodin et al. 2016)
+        # assumption: anisotropy points in the same direction and the amplitude ratio dVp/Vp / dVs/Vs = 1.5 is fixed (Obrebski et al. 2010, Bodin et al. 2016)
         # if we set the scaling factor to 1, the results of both versions are the same.
         dVs = 2*anisoamp*vs # peak to peak absolute velocity deviation
-        dVp = 2*1.5*anisoamp*vp # see assumption
+        dVp = 2*factor*anisoamp*vp # see assumption
         # C1 = integral ( dcR_dA * Bc + dcR_dL * Gc ) = C1 = integral ( dcR_dA * B * costerm + dcR_dL * G * costerm )
         # C2 = integral ( dcR_dA * Bs + dcR_dL * Gs ) = C1 = integral ( dcR_dA * B * sinterm + dcR_dL * G * sinterm )
         costerm = num.reshape(num.tile(num.repeat(num.cos(2*anisodir[:-1]),nrefine),nperiods),(nperiods,nlayers_refined))
@@ -219,7 +220,7 @@ def surf96(thickness, vp, vs, rho, periods,
         'thickness, vp/vs velocities and rho have different sizes.'
     assert thickness.ndim == vp.ndim == vs.ndim == rho.ndim == 1, \
         'thickness, vp/vs velocities or rho have more than one dimension'
-    assert thickness.size <= MAXLAYER, 'maximum number of layers is 100'
+    assert thickness.size <= MAXLAYER, 'maximum number of layers is 200'
     assert periods.size <= MAXPERIODS, 'maximum number of periods is 60'
     assert wave in ['love', 'rayleigh'], 'wave has to be love or rayleigh'
     assert velocity in ['group', 'phase'], 'velocity has to be group or phase'
@@ -273,4 +274,38 @@ def layermod2depthmod(thickness,parameters):
     return num.vstack((depth,layerparams))
 
 
-__all__ = ['surf96', 'surf96aa', 'layermod2depthmod','Surf96Error']
+# for convenience, a function that reduces the maximum number of layers to the
+# desired number (there are of course also other ways to do it)
+def simplify_model( h, vp, vs, rho, c1, c2, MAXLAYERS=200):
+    ns = int(np.ceil(len(h)/(MAXLAYERS-1)))+1
+    hnew = np.zeros(MAXLAYERS)
+    hnew[-1] = h[-1]
+    vpnew = np.zeros(MAXLAYERS)
+    vpnew[-1] = vp[-1]
+    vsnew = np.zeros(MAXLAYERS)
+    vsnew[-1] = vs[-1]
+    rhonew = np.zeros(MAXLAYERS)
+    rhonew[-1] = rho[-1]
+    c1new = np.zeros(MAXLAYERS)
+    c1new[-1] = c1[-1]
+    c2new = np.zeros(MAXLAYERS)
+    c2new[-1] = c2[-1]
+    i = len(h)-1
+    for inew in np.arange(MAXLAYERS-2,-1,-1):
+        hnew[inew] = np.sum(h[i-ns:i])
+        vpnew[inew] = np.average(vp[i-ns:i],weights=h[i-ns:i])
+        vsnew[inew] = np.average(vs[i-ns:i],weights=h[i-ns:i])
+        rhonew[inew] = np.average(rho[i-ns:i],weights=h[i-ns:i])
+        c1new[inew] = np.average(c1[i-ns:i],weights=h[i-ns:i])
+        c2new[inew] = np.average(c2[i-ns:i],weights=h[i-ns:i])
+        i -= ns
+        if i == inew:
+            ns = 1
+        else:
+            ns = np.min([i-inew+1,int(np.ceil(i/(inew-1)))+1])
+    if np.any(vsnew==0.) or np.any(np.isnan(vsnew)):
+        raise Exception("should not happen!")
+    return hnew, vpnew, vsnew, rhonew, c1new, c2new
+
+
+__all__ = ['surf96', 'surf96aa', 'layermod2depthmod','simplify_model','Surf96Error']
