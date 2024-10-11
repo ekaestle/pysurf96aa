@@ -15,7 +15,7 @@ More useful software for seismology at https://pyrocko.org.
 
 ## Installation
 
-This package is for Python 2 and Python 3.
+This package is for Python 2 and Python 3. Currently, it seems not to work with Python >3.10.
 
 Prerequisites are numpy and a Fortran77 compiler, like GNU GCC.
 
