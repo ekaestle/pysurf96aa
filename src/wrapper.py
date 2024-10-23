@@ -10,7 +10,6 @@ Liu, C., Yao, H., Yang, H.Y., Shen, W., Fang, H., Hu, S. and Qiao, L., 2019. Dir
 import numpy as num
 from .surfdisp96aa_ext import surfdisp96, depthkernel  # noqa
 
-
 MAXLAYER = 200
 MAXPERIODS = 60
 
@@ -101,10 +100,10 @@ def surf96aa(thickness, vp, vs, rho, anisoamp, anisodir, periods, nrefine=1,
     nperiods = len(periods)
     nlayers = len(vp)
 
-    _thk = num.empty(MAXLAYER)
-    _vp = num.empty(MAXLAYER)
-    _vs = num.empty(MAXLAYER)
-    _rho = num.empty(MAXLAYER)
+    _thk = num.zeros(MAXLAYER)
+    _vp = num.zeros(MAXLAYER)
+    _vs = num.zeros(MAXLAYER)
+    _rho = num.zeros(MAXLAYER)
 
     _thk[:nlayers] = thickness
     _vp[:nlayers] = vp
@@ -116,7 +115,7 @@ def surf96aa(thickness, vp, vs, rho, anisoamp, anisodir, periods, nrefine=1,
     igr = 0 if velocity == 'phase' else 1
     mode = int(mode)
 
-    t = num.empty(MAXPERIODS)
+    t = num.zeros(MAXPERIODS)
     t[:nperiods] = periods
 
     c_iso = num.zeros(MAXPERIODS)
@@ -150,6 +149,7 @@ def surf96aa(thickness, vp, vs, rho, anisoamp, anisodir, periods, nrefine=1,
         # C2 = integral( G/L * Lsen_Gs ) = integral( G/L * Lsen_Gsc * sine(2*anisodir) )
         C2 = num.sum(Lsen_Gsc*num.reshape(num.tile(num.repeat(2*anisoamp[:-1]*num.sin(2*anisodir[:-1]),nrefine),nperiods),(nperiods,nlayers_refined)),axis=1)
     else: # as described in Bodin et al. 2016 (appendix)
+        factor = 1.5
         # assumption: anisotropy points in the same direction and the amplitude ratio dVp/Vp / dVs/Vs = 1.5 is fixed (Obrebski et al. 2010, Bodin et al. 2016)
         # if we set the scaling factor to 1, the results of both versions are the same.
         dVs = 2*anisoamp*vs # peak to peak absolute velocity deviation
@@ -229,10 +229,10 @@ def surf96(thickness, vp, vs, rho, periods,
     nlayers = thickness.size
     kmax = periods.size
 
-    _thk = num.empty(MAXLAYER)
-    _vp = num.empty(MAXLAYER)
-    _vs = num.empty(MAXLAYER)
-    _rho = num.empty(MAXLAYER)
+    _thk = num.zeros(MAXLAYER)
+    _vp = num.zeros(MAXLAYER)
+    _vs = num.zeros(MAXLAYER)
+    _rho = num.zeros(MAXLAYER)
 
     _thk[:nlayers] = thickness
     _vp[:nlayers] = vp
@@ -244,20 +244,27 @@ def surf96(thickness, vp, vs, rho, periods,
     igr = 0 if velocity == 'phase' else 1
     mode = int(mode)
 
-    t = num.empty(MAXPERIODS)
+    t = num.zeros(MAXPERIODS)
     t[:kmax] = periods
 
     result = num.zeros(MAXPERIODS)
 
-    error = surfdisp96(_thk, _vp, _vs, _rho, nlayers, iflsph, iwave,
-                       mode, igr, kmax, t, result)
+    try:
+        error = surfdisp96(_thk, _vp, _vs, _rho, nlayers, iflsph, iwave,
+                           mode, igr, kmax, t, result)
+    except:
+        print("surfdisp96 error, returning inf")
+        return num.ones(kmax)*num.inf
+
     if error > 0:
-        raise Surf96Error(
-            'surf96 threw an error! '
-            'This may be due to low velocity zone causing'
-            ' reverse phase velocity dispersion,'
-            ' and mode jumping. Due to looking for Love waves in a halfspace'
-            ' which is OK if there are Rayleigh data.')
+        # raise Surf96Error(
+        #     'surf96 threw an error! '
+        #     'This may be due to low velocity zone causing'
+        #     ' reverse phase velocity dispersion,'
+        #     ' and mode jumping. Due to looking for Love waves in a halfspace'
+        #     ' which is OK if there are Rayleigh data.')
+        print("surfdisp96 error, returning inf")
+        return num.ones(kmax)*num.inf
 
     return result[:kmax]
 
@@ -277,33 +284,33 @@ def layermod2depthmod(thickness,parameters):
 # for convenience, a function that reduces the maximum number of layers to the
 # desired number (there are of course also other ways to do it)
 def simplify_model( h, vp, vs, rho, c1, c2, MAXLAYERS=200):
-    ns = int(np.ceil(len(h)/(MAXLAYERS-1)))+1
-    hnew = np.zeros(MAXLAYERS)
+    ns = int(num.ceil(len(h)/(MAXLAYERS-1)))+1
+    hnew = num.zeros(MAXLAYERS)
     hnew[-1] = h[-1]
-    vpnew = np.zeros(MAXLAYERS)
+    vpnew = num.zeros(MAXLAYERS)
     vpnew[-1] = vp[-1]
-    vsnew = np.zeros(MAXLAYERS)
+    vsnew = num.zeros(MAXLAYERS)
     vsnew[-1] = vs[-1]
-    rhonew = np.zeros(MAXLAYERS)
+    rhonew = num.zeros(MAXLAYERS)
     rhonew[-1] = rho[-1]
-    c1new = np.zeros(MAXLAYERS)
+    c1new = num.zeros(MAXLAYERS)
     c1new[-1] = c1[-1]
-    c2new = np.zeros(MAXLAYERS)
+    c2new = num.zeros(MAXLAYERS)
     c2new[-1] = c2[-1]
     i = len(h)-1
-    for inew in np.arange(MAXLAYERS-2,-1,-1):
-        hnew[inew] = np.sum(h[i-ns:i])
-        vpnew[inew] = np.average(vp[i-ns:i],weights=h[i-ns:i])
-        vsnew[inew] = np.average(vs[i-ns:i],weights=h[i-ns:i])
-        rhonew[inew] = np.average(rho[i-ns:i],weights=h[i-ns:i])
-        c1new[inew] = np.average(c1[i-ns:i],weights=h[i-ns:i])
-        c2new[inew] = np.average(c2[i-ns:i],weights=h[i-ns:i])
+    for inew in num.arange(MAXLAYERS-2,-1,-1):
+        hnew[inew] = num.sum(h[i-ns:i])
+        vpnew[inew] = num.average(vp[i-ns:i],weights=h[i-ns:i])
+        vsnew[inew] = num.average(vs[i-ns:i],weights=h[i-ns:i])
+        rhonew[inew] = num.average(rho[i-ns:i],weights=h[i-ns:i])
+        c1new[inew] = num.average(c1[i-ns:i],weights=h[i-ns:i])
+        c2new[inew] = num.average(c2[i-ns:i],weights=h[i-ns:i])
         i -= ns
         if i == inew:
             ns = 1
         else:
-            ns = np.min([i-inew+1,int(np.ceil(i/(inew-1)))+1])
-    if np.any(vsnew==0.) or np.any(np.isnan(vsnew)):
+            ns = num.min([i-inew+1,int(num.ceil(i/(inew-1)))+1])
+    if num.any(vsnew==0.) or num.any(num.isnan(vsnew)):
         raise Exception("should not happen!")
     return hnew, vpnew, vsnew, rhonew, c1new, c2new
 
